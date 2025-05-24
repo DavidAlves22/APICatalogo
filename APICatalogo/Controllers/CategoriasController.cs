@@ -37,9 +37,12 @@ namespace APICatalogo.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Categoria>>> GetAsync()
-        {
+        {            
+            // Simulando um erro para testar o middleware de tratamento de exceções.
+            //throw new Exception("Erro ao tentar recuperar categorias"); 
             try
             {
+
                 var categorias = await _context.Categorias.AsNoTracking().ToListAsync(); // Usar AsNoTracking para melhorar a performance em consultas de leitura mas se precisar persistir as entidades, não use.
                 if (categorias == null)
                     return NotFound("Categorias não encontradas");

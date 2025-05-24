@@ -1,4 +1,5 @@
 using APICatalogo.Context;
+using APICatalogo.Extensions;
 using APICatalogo.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -35,10 +36,20 @@ builder.Services.AddTransient<IMeuService, MeuService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// Configure o middleware de tratamento de erros para desenvolvimento
+// A ordem dos middlewares é importante, pois eles são executados na ordem em que são adicionados
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/error"); // Adição do middleware de tratamento de erros para produção
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(); // Adição do Swagger para documentação da API
     app.UseSwaggerUI(); // Adição do SwaggerUI para documentação da API - Responde com a interface gráfica do Swagger
+    app.ConfigureExceptionHandler();
 }
 
 app.UseHttpsRedirection();
@@ -46,10 +57,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers(); // Necessário para meear os controllers com as rotas
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/error"); // Adição do middleware de tratamento de erros para produção
-}
 
 app.Run();
