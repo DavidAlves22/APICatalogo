@@ -12,10 +12,21 @@ namespace APICatalogo.Controllers
     public class CategoriasController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public CategoriasController(AppDbContext context)
+        public CategoriasController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
+        }
+
+        [HttpGet("valores-appsettings")]
+        public ActionResult<string> GetValoresAppSettings()
+        {
+            var valor1 = _configuration["chave1"];
+            var valor2 = _configuration["chave2"];
+            var valor3 = _configuration["secao:chave1"];
+            return $"Chave 1: {valor1} \nChave 2: {valor2} \nChave 3: {valor3}";
         }
 
         [HttpGet("Injetando-Services-No-Escopo")]

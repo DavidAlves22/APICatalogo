@@ -13,6 +13,10 @@ builder.Services.AddSwaggerGen(); // Adição do Swagger para documentação da API
 
 var mySQLConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
+var valor1 = builder.Configuration["chave1"];
+var valor2 = builder.Configuration["chave2"];
+var valor3 = builder.Configuration["secao:chave1"];
+
 builder.Services.AddDbContext<AppDbContext>(optionsAction =>
 {
     optionsAction.UseMySql(mySQLConnection, ServerVersion.AutoDetect(mySQLConnection)); // Adiciona o DbContext com o MySQL
