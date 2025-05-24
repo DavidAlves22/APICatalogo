@@ -21,7 +21,8 @@ namespace APICatalogo.Extensions
                         {
                             StatusCode = context.Response.StatusCode,
                             Message = contextFeature.Error.Message,
-                            InnerException = contextFeature.Error.InnerException != null ? contextFeature.Error.InnerException.Message : "Detalhes não disponíveis"
+                            InnerException = contextFeature.Error.InnerException != null ? contextFeature.Error.InnerException.Message : "Detalhes não disponíveis",
+                            Trace = contextFeature.Error.StackTrace
                         }.ToString());
                     }
                 });

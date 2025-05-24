@@ -1,5 +1,6 @@
 using APICatalogo.Context;
 using APICatalogo.Extensions;
+using APICatalogo.Filters;
 using APICatalogo.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -32,6 +33,7 @@ builder.Services.AddControllers() // Adiciona os controllers
                 // Para resolver isso, usamos o ReferenceHandler.IgnoreCycles para ignorar os ciclos de referência)
 
 builder.Services.AddTransient<IMeuService, MeuService>();
+builder.Services.AddScoped<ApiLoggingFilter>();
 
 var app = builder.Build();
 
