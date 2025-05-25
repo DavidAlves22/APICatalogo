@@ -25,7 +25,10 @@ builder.Services.AddDbContext<AppDbContext>(optionsAction =>
     // Para usar o SqlServer, use: optionsAction.UseSqlServer(mySQLConnection);
 });
 
-builder.Services.AddControllers() // Adiciona os controllers
+builder.Services.AddControllers(options =>
+                {
+                    options.Filters.Add(typeof(ApiExceptionFilter)); // Adiciona o filtro de tratamento de exceções globalmente
+                }) // Adiciona os controllers
                 .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles); 
                 // Adiciona o JsonOptions para ignorar ciclos de referência
                 // (ciclos de referência são quando um objeto tem uma referência para outro objeto que tem uma referência para o primeiro objeto, causando um loop infinito)
@@ -51,7 +54,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(); // Adição do Swagger para documentação da API
     app.UseSwaggerUI(); // Adição do SwaggerUI para documentação da API - Responde com a interface gráfica do Swagger
-    app.ConfigureExceptionHandler();
+    app.ConfigureExceptionHandler(); // Adição do middleware de tratamento de erros para desenvolvimento
 }
 
 app.UseHttpsRedirection();

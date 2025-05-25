@@ -14,11 +14,12 @@ namespace APICatalogo.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
-
-        public CategoriasController(AppDbContext context, IConfiguration configuration)
+        private readonly ILogger _logger;
+        public CategoriasController(AppDbContext context, IConfiguration configuration, ILogger<CategoriasController> logger)
         {
             _context = context;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpGet("valores-appsettings")]
@@ -39,38 +40,25 @@ namespace APICatalogo.Controllers
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))] // Usando o filtro de logging para registrar as informações da requisição e resposta
         public async Task<ActionResult<IEnumerable<Categoria>>> GetAsync()
-        {            
+        {
             // Simulando um erro para testar o middleware de tratamento de exceções.
             //throw new Exception("Erro ao tentar recuperar categorias"); 
-            try
-            {
-
-                var categorias = await _context.Categorias.AsNoTracking().ToListAsync(); // Usar AsNoTracking para melhorar a performance em consultas de leitura mas se precisar persistir as entidades, não use.
-                if (categorias == null)
-                    return NotFound("Categorias não encontradas");
-                return categorias;
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro ao tentar recuperar categorias. Erro: {ex.Message}");
-            }
+            var categorias = await _context.Categorias.AsNoTracking().ToListAsync(); // Usar AsNoTracking para melhorar a performance em consultas de leitura mas se precisar persistir as entidades, não use.
+            if (categorias == null)
+                return NotFound("Categorias não encontradas");
+            return categorias;
         }
 
         [HttpGet("produtos")]
         public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriaComProdutosAsync()
         {
-            try
-            {
-                var categorias = await _context.Categorias.AsNoTracking().Include(x => x.Produtos).ToListAsync();
-                if (categorias == null)
-                    return NotFound("Categorias não encontradas");
+            _logger.LogInformation("#### GET api/categorias/produtos ####"); // Logando a requisição no console
 
-                return categorias;
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro ao tentar recuperar categorias. Erro: {ex.Message}");
-            }
+            var categorias = await _context.Categorias.AsNoTracking().Include(x => x.Produtos).ToListAsync();
+            if (categorias == null)
+                return NotFound("Categorias não encontradas");
+
+            return categorias;
         }
     }
 }

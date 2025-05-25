@@ -4,12 +4,18 @@ using System.Net;
 
 namespace APICatalogo.Extensions
 {
+    // Classe de extensão para configurar o middleware de tratamento de exceções globalmente em DESENVOLVIMENTO
+    // Traz informações detalhadas sobre o erro, como mensagem, stack trace e inner exception (se houver), por isso não é recomendado para produção.
+    // Registrado em Program.cs em ambiende de desenvolvimento (app.Environment.IsDevelopment())
+
     public static class ApiExceptionMiddlewareExtensions
     {
         public static void ConfigureExceptionHandler(this IApplicationBuilder app)
         {
-            app.UseExceptionHandler(appError => {
-                appError.Run(async context => {
+            app.UseExceptionHandler(appError =>
+            {
+                appError.Run(async context =>
+                {
 
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";

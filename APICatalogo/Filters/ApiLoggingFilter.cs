@@ -2,6 +2,10 @@
 
 namespace APICatalogo.Filters
 {
+    // Filtro de ação para registrar informações da requisição e resposta da API
+    // Implementa a interface IActionFilter para registrar informações antes e depois da execução da ação
+    // Para registrar o filtro, adicione o atributo [ServiceFilter(typeof(ApiLoggingFilter))] na ação ou no controlador
+
     public class ApiLoggingFilter : IActionFilter
     {
         protected readonly ILogger<ApiLoggingFilter> _logger;
