@@ -39,6 +39,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddTransient<IMeuService, MeuService>();
 builder.Services.AddScoped<ApiLoggingFilter>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 
 var app = builder.Build();
 
