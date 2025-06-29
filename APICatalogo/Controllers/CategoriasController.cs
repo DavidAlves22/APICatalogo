@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Domain;
 using APICatalogo.Filters;
-using APICatalogo.Repositories;
+using APICatalogo.Repositories.Interfaces;
+using APICatalogo.Repositories.UnitOfWork;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +13,12 @@ namespace APICatalogo.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
-        private readonly ICategoriaRepository _categoriaRepository;
-        public CategoriasController(IConfiguration configuration, ILogger<CategoriasController> logger, ICategoriaRepository categoriaRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoriasController(IConfiguration configuration, ILogger<CategoriasController> logger, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _logger = logger;
-            _categoriaRepository = categoriaRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet("valores-appsettings")]
@@ -41,18 +42,7 @@ namespace APICatalogo.Controllers
         {
             // Simulando um erro para testar o middleware de tratamento de exceções.
             //throw new Exception("Erro ao tentar recuperar categorias"); 
-            var categorias = await _categoriaRepository.GetAsync();
-            if (categorias == null)
-                return NotFound("Categorias não encontradas");
-
-            return Ok(categorias);
-        }
-
-        [HttpGet("produtos")]
-        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriaComProdutosAsync()
-        {
-            _logger.LogInformation("#### GET api/categorias/produtos ####"); // Logando a requisição no console
-            var categorias = await _categoriaRepository.GetCategoriaComProdutosAsync();
+            var categorias = await _unitOfWork.CategoriaRepository.GetAsync();
             if (categorias == null)
                 return NotFound("Categorias não encontradas");
 
@@ -62,7 +52,7 @@ namespace APICatalogo.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriaPorId(int id)
         {
-            var categorias = await _categoriaRepository.GetCategoriaPorId(id);
+            var categorias = await _unitOfWork.CategoriaRepository.GetPorIdAsync(id);
             if (categorias == null)
                 return NotFound("Categoria não encontrada");
 
@@ -72,9 +62,11 @@ namespace APICatalogo.Controllers
         [HttpPost]
         public async Task<ActionResult<Categoria>> Incluir([FromBody] Categoria categoria)
         {
+            _logger.LogInformation("#### POST api/categorias"); // Logando a requisição no console
             if (categoria == null)
                 return BadRequest("Categoria não pode ser nula.");
-            var categoriaCriada = await _categoriaRepository.Incluir(categoria);
+            var categoriaCriada = await _unitOfWork.CategoriaRepository.Incluir(categoria);
+            await _unitOfWork.CommitAsync();
 
             return CreatedAtAction(nameof(GetCategoriaPorId), new { id = categoriaCriada.Id }, categoriaCriada);
         }
@@ -85,9 +77,11 @@ namespace APICatalogo.Controllers
             if (categoria == null || categoria.Id != categoria.Id)
                 return BadRequest("Categoria inválida ou Id não corresponde.");
 
-            var categoriaExistente = await _categoriaRepository.Alterar(categoria);
-            if (categoriaExistente == null)
+            var categoriaExistente = await _unitOfWork.CategoriaRepository.Alterar(categoria);
+            if (!categoriaExistente)
                 return NotFound("Categoria não encontrada.");
+
+            await _unitOfWork.CommitAsync();
 
             return Ok(categoriaExistente);
         }
@@ -95,10 +89,13 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult<Categoria>> Excluir(int id)
         {
-            var categoriaExcluida = await _categoriaRepository.Excluir(id);
+            var categoriaExcluida = await _unitOfWork.CategoriaRepository.Excluir(id);
 
-            if (categoriaExcluida == null)
+            if (!categoriaExcluida)
                 return NotFound("Categoria não encontrada.");
+
+            await _unitOfWork.CommitAsync();
+
             return Ok(categoriaExcluida);
         }
     }

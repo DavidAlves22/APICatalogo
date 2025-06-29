@@ -1,10 +1,7 @@
-﻿using APICatalogo.Context;
-using APICatalogo.Domain;
-using APICatalogo.Repositories;
+﻿using APICatalogo.Domain;
+using APICatalogo.Repositories.Interfaces;
+using APICatalogo.Repositories.UnitOfWork;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace APICatalogo.Controllers
 {
@@ -12,11 +9,11 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private IProdutoRepository _produtoRepository;
+        private IUnitOfWork _unitOfWork;
 
-        public ProdutosController(IProdutoRepository produtoRepository)
-        {
-            _produtoRepository = produtoRepository;
+        public ProdutosController(IUnitOfWork unitOfWork)
+        {           
+            _unitOfWork = unitOfWork;
         }
 
         //IActionResult - Retorna o resultado da ação, independente do tipo de retorno (Precisa retornar uma ActionResult sempre)
@@ -27,7 +24,7 @@ namespace APICatalogo.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
         {
-            var produtos = _produtoRepository.GetProdutos().ToList(); // Chama o repositório para obter os produtos
+            var produtos = _unitOfWork.ProdutoRepository.GetAsync(); // Chama o repositório para obter os produtos
 
             if (produtos is null)
                 return NotFound("Produtos não encontrados");
@@ -39,7 +36,7 @@ namespace APICatalogo.Controllers
         [HttpGet("{id:int:length(2)}", Name = "ObterProduto")]
         public async Task<ActionResult<Produto>> GetAsync(int id) //[BindRequired] exige que o atributo nome seja obrigatório
         {
-            var produto = await _produtoRepository.GetProduto(id); // Chama o repositório para obter o produto
+            var produto = await _unitOfWork.ProdutoRepository.GetPorIdAsync(id); // Chama o repositório para obter o produto
 
             if (produto is null)
                 return NotFound("Produto não encontrado");
@@ -53,10 +50,12 @@ namespace APICatalogo.Controllers
             if (produto is null)
                 return BadRequest("Produto inválido");
 
-            var produtoCriado = await _produtoRepository.Incluir(produto);
+            var produtoCriado = await _unitOfWork.ProdutoRepository.Incluir(produto);
 
             if(produtoCriado is null)
                 return BadRequest("Produto inválido");
+
+            await _unitOfWork.CommitAsync();
 
             return Ok(produtoCriado);
         }
@@ -69,10 +68,12 @@ namespace APICatalogo.Controllers
             if (produto.Id == 0)
                 return BadRequest("Produto inválido");
 
-            var alterou = await _produtoRepository.Alterar(produto);
+            var alterou = await _unitOfWork.ProdutoRepository.Alterar(produto);
 
             if (!alterou)
                 return StatusCode(500, "Produto não encontrado para alteração");
+
+            await _unitOfWork.CommitAsync();
 
             return Ok("Produto alterado");
         }
@@ -83,10 +84,12 @@ namespace APICatalogo.Controllers
             if (id == 0)
                 return BadRequest("Produto inválido");
 
-            var deletado = await _produtoRepository.Excluir(id);
+            var deletado = await _unitOfWork.ProdutoRepository.Excluir(id);
 
             if(!deletado)
                 return StatusCode(500, "Produto não encontrado para exclusão");
+
+            await _unitOfWork.CommitAsync();
 
             return Ok("Produto deletado");
         }
