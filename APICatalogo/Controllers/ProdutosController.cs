@@ -2,6 +2,7 @@
 using APICatalogo.Domain.DTOs;
 using APICatalogo.Repositories.UnitOfWork;
 using AutoMapper;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APICatalogo.Controllers
@@ -12,11 +13,13 @@ namespace APICatalogo.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly MapsterMapper.IMapper _mapsterMapper;
 
-        public ProdutosController(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProdutosController(IUnitOfWork unitOfWork, IMapper mapper, MapsterMapper.IMapper mapsterMapper)
         {           
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _mapsterMapper = mapsterMapper;
         }
 
         //IActionResult - Retorna o resultado da ação, independente do tipo de retorno (Precisa retornar uma ActionResult sempre)
@@ -33,6 +36,9 @@ namespace APICatalogo.Controllers
                 return NotFound("Produtos não encontrados");
 
             var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos); // Mapeia os produtos para o DTO usando AutoMapper
+            // OU
+            var produtosDTO2 = produtos.Adapt<IEnumerable<ProdutoDTO>>(); // Mapeia os produtos para o DTO usando Mapster
+            var produtosDTO3 = _mapsterMapper.Map<IEnumerable<ProdutoDTO>>(produtos); // Mapeia os produtos para o DTO usando Mapster com MapsterMapper
 
             return Ok(produtosDTO);
         }
