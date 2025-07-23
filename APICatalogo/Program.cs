@@ -1,4 +1,5 @@
 using APICatalogo.Context;
+using APICatalogo.Domain.DTOs.Mappings;
 using APICatalogo.Extensions;
 using APICatalogo.Filters;
 using APICatalogo.Repositories;
@@ -44,6 +45,7 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddAutoMapper(cfg => cfg.LicenseKey = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ikx1Y2t5UGVubnlTb2Z0d2FyZUxpY2Vuc2VLZXkvYmJiMTNhY2I1OTkwNGQ4OWI0Y2IxYzg1ZjA4OGNjZjkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2x1Y2t5cGVubnlzb2Z0d2FyZS5jb20iLCJhdWQiOiJMdWNreVBlbm55U29mdHdhcmUiLCJleHAiOiIxNzg0MTYwMDAwIiwiaWF0IjoiMTc1MjY4ODgzNSIsImFjY291bnRfaWQiOiIwMTk4MTQ2NGJhYWI3OGZlYTgyYThhMDJkY2MzMTZjMCIsImN1c3RvbWVyX2lkIjoiY3RtXzAxazBhNmFmNmo3cWtha2h0cXJwMjk0MWEwIiwic3ViX2lkIjoiLSIsImVkaXRpb24iOiIwIiwidHlwZSI6IjIifQ.XQO0ni7Sq40RkeVSgwsTx9Yqubgy4jHWvOSA_zY0AFPvQV5MurHZnrNaTVOYaF5IB5aqAQHGIuSaNHVPixXs_VnxvBYyzQaRLKPoTsFfTF68eIAEBPXhAADsKOfpblf_bNcbMA-4ErNUaP3aaq2TTheMzL2WU8TBqsITVWGSytkYuw_PgPJAMFqmG6yb1gwN6Rx8lptntDehaoiI5KckA1hd27YMSDIX0WlrK9ziXAhMKTLyYmcTAIBUpTFvWr1RurP7VK8-ZJrlHU5UpMxCU3p7l7A4TgRqpddGLGIXuDbF3VTmebgB8F28QUU6UQZYOUrke6U2MsUCxbnyYVvqmQ", typeof(DTOMappingProfile));
 
 var app = builder.Build();
 

@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Domain;
-using APICatalogo.Repositories.Interfaces;
+using APICatalogo.Domain.DTOs;
 using APICatalogo.Repositories.UnitOfWork;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APICatalogo.Controllers
@@ -9,11 +10,13 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public ProdutosController(IUnitOfWork unitOfWork)
+        public ProdutosController(IUnitOfWork unitOfWork, IMapper mapper)
         {           
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         //IActionResult - Retorna o resultado da ação, independente do tipo de retorno (Precisa retornar uma ActionResult sempre)
@@ -22,33 +25,39 @@ namespace APICatalogo.Controllers
         //T - Tipo de retorno da ação (pode ser um objeto ou uma string)
 
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> Get()
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
         {
-            var produtos = _unitOfWork.ProdutoRepository.GetAsync(); // Chama o repositório para obter os produtos
+            var produtos = await _unitOfWork.ProdutoRepository.GetAsync(); // Chama o repositório para obter os produtos
 
             if (produtos is null)
                 return NotFound("Produtos não encontrados");
 
-            return Ok(produtos);
+            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos); // Mapeia os produtos para o DTO usando AutoMapper
+
+            return Ok(produtosDTO);
         }
 
         //{id:int:length(2)} - O id deve ser um inteiro e ter 2 dígitos (Existem outras formas de restringir o id, como por exemplo: {id:int:min(1)} - O id deve ser um inteiro e maior que 1)
         [HttpGet("{id:int:length(2)}", Name = "ObterProduto")]
-        public async Task<ActionResult<Produto>> GetAsync(int id) //[BindRequired] exige que o atributo nome seja obrigatório
+        public async Task<ActionResult<ProdutoDTO>> GetAsync(int id) //[BindRequired] exige que o atributo nome seja obrigatório
         {
             var produto = await _unitOfWork.ProdutoRepository.GetPorIdAsync(id); // Chama o repositório para obter o produto
 
             if (produto is null)
                 return NotFound("Produto não encontrado");
 
-            return Ok(produto);
+            var produtoDTO = _mapper.Map<ProdutoDTO>(produto); 
+
+            return Ok(produtoDTO);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Produto>> Post(Produto produto)
+        public async Task<ActionResult<ProdutoDTO>> Post(ProdutoDTO produtoDTO)
         {
-            if (produto is null)
+            if (produtoDTO is null)
                 return BadRequest("Produto inválido");
+
+            var produto = _mapper.Map<Produto>(produtoDTO); 
 
             var produtoCriado = await _unitOfWork.ProdutoRepository.Incluir(produto);
 
@@ -56,18 +65,21 @@ namespace APICatalogo.Controllers
                 return BadRequest("Produto inválido");
 
             await _unitOfWork.CommitAsync();
+            
+            var novoProdutoDTO = _mapper.Map<ProdutoDTO>(produtoCriado); 
 
-            return Ok(produtoCriado);
+            return Ok(novoProdutoDTO);
         }
 
         [HttpPut]
-        public async Task<ActionResult<bool>> Put(Produto produto)
+        public async Task<ActionResult<bool>> Put(ProdutoDTO produtoDTO)
         {
-            if (produto is null)
+            if (produtoDTO is null)
                 return BadRequest("Produto inválido");
-            if (produto.Id == 0)
+            if (produtoDTO.Id == 0)
                 return BadRequest("Produto inválido");
 
+            var produto = _mapper.Map<Produto>(produtoDTO); 
             var alterou = await _unitOfWork.ProdutoRepository.Alterar(produto);
 
             if (!alterou)

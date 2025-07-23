@@ -1,4 +1,6 @@
 ﻿using APICatalogo.Domain;
+using APICatalogo.Domain.DTOs;
+using APICatalogo.Domain.DTOs.Mappings;
 using APICatalogo.Filters;
 using APICatalogo.Repositories.Interfaces;
 using APICatalogo.Repositories.UnitOfWork;
@@ -38,7 +40,7 @@ namespace APICatalogo.Controllers
 
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))] // Usando o filtro de logging para registrar as informações da requisição e resposta
-        public async Task<ActionResult<IEnumerable<Categoria>>> GetAsync()
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync()
         {
             // Simulando um erro para testar o middleware de tratamento de exceções.
             //throw new Exception("Erro ao tentar recuperar categorias"); 
@@ -46,36 +48,47 @@ namespace APICatalogo.Controllers
             if (categorias == null)
                 return NotFound("Categorias não encontradas");
 
-            return Ok(categorias);
+            var categoriasDTO = categorias.ToCategoriaDTOList(); // Usando o método de extensão para converter a lista de categorias para DTOs
+
+            return Ok(categoriasDTO);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<IEnumerable<Categoria>>> GetCategoriaPorId(int id)
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriaPorId(int id)
         {
-            var categorias = await _unitOfWork.CategoriaRepository.GetPorIdAsync(id);
-            if (categorias == null)
+            var categoria = await _unitOfWork.CategoriaRepository.GetPorIdAsync(id);
+            if (categoria == null)
                 return NotFound("Categoria não encontrada");
 
-            return Ok(categorias);
+            var categoriaDTO = categoria.ToCategoriaDTO(); // Usando o método de extensão para converter a categoria para DTO
+
+            return Ok(categoriaDTO);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Categoria>> Incluir([FromBody] Categoria categoria)
+        public async Task<ActionResult<CategoriaDTO>> Incluir([FromBody] CategoriaDTO categoriaDTO)
         {
             _logger.LogInformation("#### POST api/categorias"); // Logando a requisição no console
-            if (categoria == null)
+            if (categoriaDTO == null)
                 return BadRequest("Categoria não pode ser nula.");
+
+            var categoria = categoriaDTO.ToCategoria();
+
             var categoriaCriada = await _unitOfWork.CategoriaRepository.Incluir(categoria);
             await _unitOfWork.CommitAsync();
 
-            return CreatedAtAction(nameof(GetCategoriaPorId), new { id = categoriaCriada.Id }, categoriaCriada);
+            var novaCategoriaDTO = categoriaCriada.ToCategoriaDTO();
+
+            return CreatedAtAction(nameof(GetCategoriaPorId), new { id = novaCategoriaDTO.Id }, novaCategoriaDTO);
         }
 
         [HttpPut()]
-        public async Task<ActionResult<Categoria>> Alterar([FromBody] Categoria categoria)
+        public async Task<ActionResult<CategoriaDTO>> Alterar([FromBody] CategoriaDTO categoriaDTO)
         {
-            if (categoria == null || categoria.Id != categoria.Id)
+            if (categoriaDTO == null || categoriaDTO.Id <= 0)
                 return BadRequest("Categoria inválida ou Id não corresponde.");
+
+            var categoria = categoriaDTO.ToCategoria();
 
             var categoriaExistente = await _unitOfWork.CategoriaRepository.Alterar(categoria);
             if (!categoriaExistente)
@@ -83,11 +96,11 @@ namespace APICatalogo.Controllers
 
             await _unitOfWork.CommitAsync();
 
-            return Ok(categoriaExistente);
+            return Ok(categoriaDTO);
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<Categoria>> Excluir(int id)
+        public async Task<ActionResult<CategoriaDTO>> Excluir(int id)
         {
             var categoriaExcluida = await _unitOfWork.CategoriaRepository.Excluir(id);
 
