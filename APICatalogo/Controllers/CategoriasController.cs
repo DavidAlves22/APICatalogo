@@ -1,5 +1,5 @@
 ﻿using APICatalogo.Domain;
-using APICatalogo.Domain.DTOs;
+using APICatalogo.Domain.DTOs.Categorias;
 using APICatalogo.Domain.DTOs.Mappings;
 using APICatalogo.Filters;
 using APICatalogo.Repositories.Interfaces;

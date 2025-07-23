@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace APICatalogo.Domain.DTOs
+namespace APICatalogo.Domain.DTOs.Produtos
 {
     public class ProdutoDTO
     {

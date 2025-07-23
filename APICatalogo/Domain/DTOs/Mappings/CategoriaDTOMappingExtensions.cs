@@ -1,4 +1,6 @@
-﻿namespace APICatalogo.Domain.DTOs.Mappings
+﻿using APICatalogo.Domain.DTOs.Categorias;
+
+namespace APICatalogo.Domain.DTOs.Mappings
 {
     public static class CategoriaDTOMappingExtensions
     {

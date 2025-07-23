@@ -1,5 +1,5 @@
 ﻿using APICatalogo.Domain;
-using APICatalogo.Domain.DTOs;
+using APICatalogo.Domain.DTOs.Produtos;
 using APICatalogo.Repositories.UnitOfWork;
 using AutoMapper;
 using Mapster;

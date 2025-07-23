@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using APICatalogo.Domain.DTOs.Categorias;
+using APICatalogo.Domain.DTOs.Produtos;
+using AutoMapper;
 
 namespace APICatalogo.Domain.DTOs.Mappings
 {

@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using APICatalogo.Domain.DTOs.Produtos;
+using Mapster;
 
 namespace APICatalogo.Domain.DTOs.Mappings
 {

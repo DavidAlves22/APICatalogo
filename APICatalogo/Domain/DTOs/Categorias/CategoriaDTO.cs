@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace APICatalogo.Domain.DTOs
+namespace APICatalogo.Domain.DTOs.Categorias
 {
     public class CategoriaDTO
     {
