@@ -65,7 +65,7 @@ namespace APICatalogo.Controllers
 
             var produto = _mapper.Map<Produto>(produtoDTO); 
 
-            var produtoCriado = await _unitOfWork.ProdutoRepository.Incluir(produto);
+            var produtoCriado = _unitOfWork.ProdutoRepository.Incluir(produto);
 
             if(produtoCriado is null)
                 return BadRequest("Produto inválido");
@@ -86,7 +86,7 @@ namespace APICatalogo.Controllers
                 return BadRequest("Produto inválido");
 
             var produto = _mapper.Map<Produto>(produtoDTO); 
-            var alterou = await _unitOfWork.ProdutoRepository.Alterar(produto);
+            var alterou = _unitOfWork.ProdutoRepository.Alterar(produto);
 
             if (!alterou)
                 return StatusCode(500, "Produto não encontrado para alteração");
@@ -102,7 +102,7 @@ namespace APICatalogo.Controllers
             if (id == 0)
                 return BadRequest("Produto inválido");
 
-            var deletado = await _unitOfWork.ProdutoRepository.Excluir(id);
+            var deletado = _unitOfWork.ProdutoRepository.Excluir(id);
 
             if(!deletado)
                 return StatusCode(500, "Produto não encontrado para exclusão");
@@ -110,6 +110,17 @@ namespace APICatalogo.Controllers
             await _unitOfWork.CommitAsync();
 
             return Ok("Produto deletado");
+        }
+
+        //Paginação do retorno dos registro para evitar que a API retorne muitos registros de uma vez só
+        [HttpGet("paginado")]
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetComPaginacao([FromQuery] ParametrosProduto parametros)
+        {
+            var produtos = await _unitOfWork.ProdutoRepository.GetComPaginacaoAsync(parametros); // Chama o repositório para obter os produtos com paginação
+
+            var produtosDTO = produtos.Adapt<IEnumerable<ProdutoDTO>>(); // Mapeia os produtos para o DTO usando Mapster
+
+            return Ok(produtos);
         }
     }
 }

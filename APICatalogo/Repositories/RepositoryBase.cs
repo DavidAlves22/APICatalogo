@@ -23,19 +23,19 @@ namespace APICatalogo.Repositories
             return await _context.Set<T>().FindAsync(id);
         }
 
-        public async Task<T> Incluir(T objeto)
+        public T Incluir(T objeto)
         {
-            await _context.Set<T>().AddAsync(objeto);
-            await _context.SaveChangesAsync();
+            _context.Set<T>().Add(objeto);
+            _context.SaveChanges();
             return objeto;
         }
 
-        public async Task<bool> Alterar(T objeto)
+        public bool Alterar(T objeto)
         {
             try
             {
                 _context.Set<T>().Update(objeto);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
                 return true;
             }
             catch (Exception ex)
@@ -45,9 +45,9 @@ namespace APICatalogo.Repositories
             
         }
 
-        public async Task<bool> Excluir(int id)
+        public bool Excluir(int id)
         {
-            var objeto = await _context.Set<T>().FindAsync(id);
+            var objeto = _context.Set<T>().Find(id);
 
             if (objeto is not null)
             {

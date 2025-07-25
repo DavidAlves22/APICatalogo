@@ -39,7 +39,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet]
-        [ServiceFilter(typeof(ApiLoggingFilter))] // Usando o filtro de logging para registrar as informações da requisição e resposta
+        [ServiceFilter(typeof(ApiLoggingFilter))] 
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync()
         {
             // Simulando um erro para testar o middleware de tratamento de exceções.
@@ -48,7 +48,7 @@ namespace APICatalogo.Controllers
             if (categorias == null)
                 return NotFound("Categorias não encontradas");
 
-            var categoriasDTO = categorias.ToCategoriaDTOList(); // Usando o método de extensão para converter a lista de categorias para DTOs
+            var categoriasDTO = categorias.ToCategoriaDTOList(); 
 
             return Ok(categoriasDTO);
         }
@@ -74,7 +74,7 @@ namespace APICatalogo.Controllers
 
             var categoria = categoriaDTO.ToCategoria();
 
-            var categoriaCriada = await _unitOfWork.CategoriaRepository.Incluir(categoria);
+            var categoriaCriada = _unitOfWork.CategoriaRepository.Incluir(categoria);
             await _unitOfWork.CommitAsync();
 
             var novaCategoriaDTO = categoriaCriada.ToCategoriaDTO();
@@ -90,7 +90,7 @@ namespace APICatalogo.Controllers
 
             var categoria = categoriaDTO.ToCategoria();
 
-            var categoriaExistente = await _unitOfWork.CategoriaRepository.Alterar(categoria);
+            var categoriaExistente = _unitOfWork.CategoriaRepository.Alterar(categoria);
             if (!categoriaExistente)
                 return NotFound("Categoria não encontrada.");
 
@@ -102,7 +102,7 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult<CategoriaDTO>> Excluir(int id)
         {
-            var categoriaExcluida = await _unitOfWork.CategoriaRepository.Excluir(id);
+            var categoriaExcluida = _unitOfWork.CategoriaRepository.Excluir(id);
 
             if (!categoriaExcluida)
                 return NotFound("Categoria não encontrada.");

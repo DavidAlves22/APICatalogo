@@ -4,8 +4,10 @@
     {
         Task<IEnumerable<T>> GetAsync();
         Task<T> GetPorIdAsync(int id);
-        Task<T> Incluir(T objeto);
-        Task<bool> Alterar(T objeto);
-        Task<bool> Excluir(int id);
+
+        // Insert, Update, Delete não são métodos assíncronos, pois não há necessidade de esperar por uma operação de banco de dados que não retorne dados.
+        T Incluir(T objeto);
+        bool Alterar(T objeto);
+        bool Excluir(int id);
     }
 }
