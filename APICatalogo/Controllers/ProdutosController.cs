@@ -3,6 +3,7 @@ using APICatalogo.Domain.DTOs.Produtos;
 using APICatalogo.Repositories.UnitOfWork;
 using AutoMapper;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APICatalogo.Controllers
@@ -28,6 +29,7 @@ namespace APICatalogo.Controllers
         //T - Tipo de retorno da ação (pode ser um objeto ou uma string)
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
         {
             var produtos = await _unitOfWork.ProdutoRepository.GetAsync(); // Chama o repositório para obter os produtos
