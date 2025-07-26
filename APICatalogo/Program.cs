@@ -7,6 +7,7 @@ using APICatalogo.Repositories.Interfaces;
 using APICatalogo.Repositories.UnitOfWork;
 using APICatalogo.Services;
 using Mapster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -50,8 +51,14 @@ builder.Services.AddAutoMapper(cfg => cfg.LicenseKey = "eyJhbGciOiJSUzI1NiIsImtp
 
 MapsterConfig.ConfigurarMapeamento();
 builder.Services.AddMapster(); // Adiciona o Mapster para mapeamento de objetos (alternativa ao AutoMapper)
+
+//Serviços de Autenticação
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+//FIM - Autenticação
 
 var app = builder.Build();
 
