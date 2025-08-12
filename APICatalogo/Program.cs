@@ -91,7 +91,17 @@ MapsterConfig.ConfigurarMapeamento();
 builder.Services.AddMapster(); // Adiciona o Mapster para mapeamento de objetos (alternativa ao AutoMapper)
 
 //Serviços de Autenticação
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("SuperAdmin").RequireClaim("id", "cti"));
+
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("Usuario"));
+
+    options.AddPolicy("ExclusiveOnly", policy => policy.RequireAssertion(context=> context.User.HasClaim(claim=> claim.Type == "id" && claim.Value == "cti") || context.User.IsInRole("SuperAdmin")));
+
+});
 builder.Services.AddAuthentication("Bearer");
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()

@@ -42,6 +42,7 @@ namespace APICatalogo.Controllers
                 {
                     new Claim(ClaimTypes.Name, user.UserName!),
                     new Claim(ClaimTypes.Email, user.Email!),
+                    new Claim("id", user.UserName!),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
 
@@ -155,7 +156,7 @@ namespace APICatalogo.Controllers
 
         [HttpPost]
         [Route("create-role")]
-        [Authorize (Roles = "Admin")]
+        [Authorize (Policy = "SuperAdminOnly")]
         public async Task<IActionResult> CreateRole(string roleName)
         {
             var roleExists = await _roleManager.RoleExistsAsync(roleName);
@@ -172,6 +173,7 @@ namespace APICatalogo.Controllers
 
         [HttpPost]
         [Route("add-user-role")]
+        [Authorize(Policy = "SuperAdminOnly")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
             var user = await _userManager.FindByEmailAsync(email);

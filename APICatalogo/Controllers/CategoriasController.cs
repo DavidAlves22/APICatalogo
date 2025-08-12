@@ -5,6 +5,7 @@ using APICatalogo.Filters;
 using APICatalogo.Repositories.Interfaces;
 using APICatalogo.Repositories.UnitOfWork;
 using APICatalogo.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APICatalogo.Controllers
@@ -54,6 +55,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriaPorId(int id)
         {
             var categoria = await _unitOfWork.CategoriaRepository.GetPorIdAsync(id);
@@ -100,6 +102,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<CategoriaDTO>> Excluir(int id)
         {
             var categoriaExcluida = _unitOfWork.CategoriaRepository.Excluir(id);
