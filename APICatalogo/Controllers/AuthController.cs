@@ -103,6 +103,7 @@ namespace APICatalogo.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("refresh-token")]
+        [ApiExplorerSettings(IgnoreApi = true)] // Não exibe a rota no swagger
         public async Task<IActionResult> RefreshToken([FromBody] TokenModel tokenModel)
         {
             if (tokenModel is null)

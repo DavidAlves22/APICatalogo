@@ -7,12 +7,14 @@ using APICatalogo.Repositories;
 using APICatalogo.Repositories.Interfaces;
 using APICatalogo.Repositories.UnitOfWork;
 using APICatalogo.Services;
+using Asp.Versioning;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "APICatalogo", Version = "v1" });
+
+    var xmlFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFileName)); // Adiciona comentários XML para a documentação do Swagger   
+
     // Adiciona definição do esquema de segurança (Bearer Token)
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -77,6 +83,21 @@ builder.Services.AddControllers(options =>
 // (ciclos de referência são quando um objeto tem uma referência para outro objeto que tem uma referência para o primeiro objeto, causando um loop infinito)
 // Ex: Categoria possui lista de Produtos e Produto possui uma referência para Categoria, causando um loop infinito.
 // Para resolver isso, usamos o ReferenceHandler.IgnoreCycles para ignorar os ciclos de referência)
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true; // Assume a versão padrão quando não especificada
+    options.ReportApiVersions = true; // Permite que a versão da API seja reportada nos cabeçalhos de resposta
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new QueryStringApiVersionReader(),
+        new UrlSegmentApiVersionReader());
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV"; // Formato do nome do grupo de versão
+    options.SubstituteApiVersionInUrl = true; // Substitui a versão da API na URL    
+});
+
 
 builder.Services.AddTransient<IMeuService, MeuService>();
 builder.Services.AddScoped<ApiLoggingFilter>();
@@ -132,7 +153,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 //FIM - Autenticação
-
 
 var app = builder.Build();
 

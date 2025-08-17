@@ -39,6 +39,10 @@ namespace APICatalogo.Controllers
             return meuServico.GetMensagem(nome);
         }
 
+        /// <summary>
+        /// Obtém uma lista de categorias.
+        /// </summary>
+        /// <returns>Objetos Categoria</returns>
         [HttpGet]
         [ServiceFilter(typeof(ApiLoggingFilter))] 
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync()
@@ -54,6 +58,11 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDTO);
         }
 
+        /// <summary>
+        /// Obtém uma categoria por ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Objetos Categoria</returns>
         [HttpGet("{id:int}")]
         [Authorize(Policy = "UserOnly")]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriaPorId(int id)
@@ -67,6 +76,21 @@ namespace APICatalogo.Controllers
             return Ok(categoriaDTO);
         }
 
+
+        /// <summary>
+        /// Inclui uma nova categoria.
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        ///     POST api/categorias{
+        ///     "categoriaId": 0,
+        ///     "nome": "Categoria Teste",
+        ///     "imagemUrl": "https://example.com/imagem.jpg"
+        /// }
+        /// </remarks>
+        /// <param name="categoriaDTO"></param>
+        /// <returns>O objeto Categoria incluído</returns>
+        /// <remarks>Retorna um objeto Categoria incluído</remarks>
         [HttpPost]
         public async Task<ActionResult<CategoriaDTO>> Incluir([FromBody] CategoriaDTO categoriaDTO)
         {
