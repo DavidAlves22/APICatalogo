@@ -17,7 +17,7 @@ namespace APICatalogo.Controllers
         private readonly MapsterMapper.IMapper _mapsterMapper;
 
         public ProdutosController(IUnitOfWork unitOfWork, IMapper mapper, MapsterMapper.IMapper mapsterMapper)
-        {           
+        {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _mapsterMapper = mapsterMapper;
@@ -28,33 +28,50 @@ namespace APICatalogo.Controllers
         //ActionResult<T> - Retorna o resultado da ação, mas importa o tipo de retorno (pode ser um objeto ou uma string)
         //T - Tipo de retorno da ação (pode ser um objeto ou uma string)
 
-        [HttpGet]
         [Authorize]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync()
         {
-            var produtos = await _unitOfWork.ProdutoRepository.GetAsync(); // Chama o repositório para obter os produtos
+            try
+            {
+                var produtos = await _unitOfWork.ProdutoRepository.GetAsync(); // Chama o repositório para obter os produtos
 
-            if (produtos is null)
-                return NotFound("Produtos não encontrados");
+                if (produtos is null)
+                    return NotFound("Produtos não encontrados");
 
-            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos); // Mapeia os produtos para o DTO usando AutoMapper
-            // OU
-            var produtosDTO2 = produtos.Adapt<IEnumerable<ProdutoDTO>>(); // Mapeia os produtos para o DTO usando Mapster
-            var produtosDTO3 = _mapsterMapper.Map<IEnumerable<ProdutoDTO>>(produtos); // Mapeia os produtos para o DTO usando Mapster com MapsterMapper
+                var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos); // Mapeia os produtos para o DTO usando AutoMapper
+                                                                                  // OU
+                var produtosDTO2 = produtos.Adapt<IEnumerable<ProdutoDTO>>(); // Mapeia os produtos para o DTO usando Mapster
+                var produtosDTO3 = _mapsterMapper.Map<IEnumerable<ProdutoDTO>>(produtos); // Mapeia os produtos para o DTO usando Mapster com MapsterMapper
 
-            return Ok(produtosDTO);
+                return Ok(produtosDTO);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         //{id:int:length(2)} - O id deve ser um inteiro e ter 2 dígitos (Existem outras formas de restringir o id, como por exemplo: {id:int:min(1)} - O id deve ser um inteiro e maior que 1)
         [HttpGet("{id:int:length(2)}", Name = "ObterProduto")]
-        public async Task<ActionResult<ProdutoDTO>> GetAsync(int id) //[BindRequired] exige que o atributo nome seja obrigatório
+        public async Task<ActionResult<ProdutoDTO>> GetAsync(int id)
         {
+            if (id == 0)
+                return BadRequest("Id inválido");
+
             var produto = await _unitOfWork.ProdutoRepository.GetPorIdAsync(id); // Chama o repositório para obter o produto
 
             if (produto is null)
                 return NotFound("Produto não encontrado");
 
-            var produtoDTO = _mapper.Map<ProdutoDTO>(produto); 
+            var produtoDTO = _mapper.Map<ProdutoDTO>(produto);
 
             return Ok(produtoDTO);
         }
@@ -65,16 +82,16 @@ namespace APICatalogo.Controllers
             if (produtoDTO is null)
                 return BadRequest("Produto inválido");
 
-            var produto = _mapper.Map<Produto>(produtoDTO); 
+            var produto = _mapper.Map<Produto>(produtoDTO);
 
             var produtoCriado = _unitOfWork.ProdutoRepository.Incluir(produto);
 
-            if(produtoCriado is null)
+            if (produtoCriado is null)
                 return BadRequest("Produto inválido");
 
             await _unitOfWork.CommitAsync();
-            
-            var novoProdutoDTO = _mapper.Map<ProdutoDTO>(produtoCriado); 
+
+            var novoProdutoDTO = _mapper.Map<ProdutoDTO>(produtoCriado);
 
             return Ok(novoProdutoDTO);
         }
@@ -87,7 +104,7 @@ namespace APICatalogo.Controllers
             if (produtoDTO.Id == 0)
                 return BadRequest("Produto inválido");
 
-            var produto = _mapper.Map<Produto>(produtoDTO); 
+            var produto = _mapper.Map<Produto>(produtoDTO);
             var alterou = _unitOfWork.ProdutoRepository.Alterar(produto);
 
             if (!alterou)
@@ -106,7 +123,7 @@ namespace APICatalogo.Controllers
 
             var deletado = _unitOfWork.ProdutoRepository.Excluir(id);
 
-            if(!deletado)
+            if (!deletado)
                 return StatusCode(500, "Produto não encontrado para exclusão");
 
             await _unitOfWork.CommitAsync();
