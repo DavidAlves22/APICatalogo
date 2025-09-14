@@ -84,6 +84,8 @@ public class GetProdutoUnitTests : IClassFixture<ProdutosUnitTestController>
     [Fact]
     public async Task GetProdutos_BadRequestResult()
     {
+        //Para esse teste dar sucesso é necessário lançar uma exceção no método GetAsync do controller ProdutosController (Para simular um erro inesperado)
+
         //Act
         var data = await _controller.GetAsync();
 

@@ -5,6 +5,7 @@ using AutoMapper;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace APICatalogo.Controllers
 {
@@ -77,7 +78,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ProdutoDTO>> Post(ProdutoDTO produtoDTO)
+        public async Task<ActionResult<ProdutoDTO>> PostAsync(ProdutoDTO produtoDTO)
         {
             if (produtoDTO is null)
                 return BadRequest("Produto inválido");
@@ -93,11 +94,14 @@ namespace APICatalogo.Controllers
 
             var novoProdutoDTO = _mapper.Map<ProdutoDTO>(produtoCriado);
 
-            return Ok(novoProdutoDTO);
+            return new CreatedAtRouteResult("Post", novoProdutoDTO);
         }
 
         [HttpPut]
-        public async Task<ActionResult<bool>> Put(ProdutoDTO produtoDTO)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<bool>> PutAsync(ProdutoDTO produtoDTO)
         {
             if (produtoDTO is null)
                 return BadRequest("Produto inválido");
@@ -108,7 +112,7 @@ namespace APICatalogo.Controllers
             var alterou = _unitOfWork.ProdutoRepository.Alterar(produto);
 
             if (!alterou)
-                return StatusCode(500, "Produto não encontrado para alteração");
+                return StatusCode((int)HttpStatusCode.InternalServerError, "Produto não encontrado para alteração");
 
             await _unitOfWork.CommitAsync();
 
@@ -116,6 +120,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<bool>> Delete(int id)
         {
             if (id == 0)
@@ -124,7 +131,7 @@ namespace APICatalogo.Controllers
             var deletado = _unitOfWork.ProdutoRepository.Excluir(id);
 
             if (!deletado)
-                return StatusCode(500, "Produto não encontrado para exclusão");
+                return NotFound("Produto não encontrado para exclusão");
 
             await _unitOfWork.CommitAsync();
 
