@@ -41,8 +41,7 @@ namespace APICatalogo.Repositories
             catch (Exception ex)
             {
                 return false;
-            }
-            
+            }            
         }
 
         public bool Excluir(int id)
