@@ -7,3 +7,4 @@ Tecnologias utilizadas:
 - Entity Framework Core
 - SQL Server
 - C#
+- Testes de unidade
