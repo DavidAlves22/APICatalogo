@@ -8,3 +8,5 @@ Tecnologias utilizadas:
 - SQL Server
 - C#
 - Testes de unidade
+
+<img width="1463" height="923" alt="image" src="https://github.com/user-attachments/assets/e8a70f79-4f87-4e80-9380-23e6287566a7" />
